@@ -12,6 +12,8 @@ import java.util.ResourceBundle;
 import it.polito.tdp.yelp.model.Business;
 import it.polito.tdp.yelp.model.Model;
 import it.polito.tdp.yelp.model.Review;
+import it.polito.tdp.yelp.model.RisulatiRicorsione;
+import it.polito.tdp.yelp.model.Risultato;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -43,23 +45,49 @@ public class FXMLController {
     @FXML // fx:id="txtResult"
     private TextArea txtResult; // Value injected by FXMLLoader
     
+    
     @FXML
     void doRiempiLocali(ActionEvent event) {
+    	
     	this.cmbLocale.getItems().clear();
     	String citta = this.cmbCitta.getValue();
     	if(citta != null) {
-    		//TODO popolare la tendina dei locali per la città selezionata
-    		
+
+    	cmbLocale.getItems().addAll(model.getLocaliCitta(citta) ); 
     	}
     }
 
     @FXML
     void doCreaGrafo(ActionEvent event) {
     	
+    	Business bb= this.cmbLocale.getValue();
+    	
+    	model.creaGrafo(bb);
+    	this.txtResult.appendText("VERTICI E ARCHI: "+model.getVertici()+" -- "+model.getNumEdges());
+    	
+    	Risultato riss= model.getMaxArchiUscenti(); 
+    	this.txtResult.appendText("\nIdReview: "+riss.getListResult());
+    	
+    	this.txtResult.appendText("\nCon un totale di archi pari a: "+riss.getTotArchiUscenti());
+
+
+    	
     }
 
     @FXML
     void doTrovaMiglioramento(ActionEvent event) {
+    	
+    	RisulatiRicorsione rrC= model.sequezaRecensioniLunga();
+    	
+    	this.txtResult.appendText("\nSequenza review più grande: "); 
+
+    	for(Review rr: rrC.getPercorsoOttimale()) {
+    	this.txtResult.appendText("\n"+rr+" -- "+rr.getStars());
+    	}
+    	
+    	this.txtResult.appendText("\nLunga un totale di giorni "); 
+    	this.txtResult.appendText(""+rrC.getGiorniInter());
+
     	
     }
 
@@ -75,5 +103,10 @@ public class FXMLController {
     
     public void setModel(Model model) {
     	this.model = model;
+    	this.setCombox();
+    }
+    
+    public void setCombox() {
+    	cmbCitta.getItems().addAll(model.getCitta());
     }
 }

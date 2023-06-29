@@ -48,14 +48,19 @@ public class YelpDao {
 		}
 	}
 	
-	public List<Review> getAllReviews(){
-		String sql = "SELECT * FROM Reviews";
+	public List<Review> getAllReviewsBusiness(Business b){
+		String sql = " select r.* "
+				+ "from Reviews r "
+				+ "where r.`business_id`=? "; 
+		
 		List<Review> result = new ArrayList<Review>();
 		Connection conn = DBConnect.getConnection();
 
 		try {
 			PreparedStatement st = conn.prepareStatement(sql);
+			st.setString(1, b.getBusinessId());
 			ResultSet res = st.executeQuery();
+			
 			while (res.next()) {
 
 				Review review = new Review(res.getString("review_id"), 
@@ -110,7 +115,76 @@ public class YelpDao {
 			return null;
 		}
 	}
-	
+	public List<String> getAllCities(){
+		
+		String sql = "select distinct  b.`city` "
+				+ "from Business b "
+				+ "order by b.`city` asc ";
+		
+		List<String> result = new ArrayList<String>();
+		Connection conn = DBConnect.getConnection();
+
+		try {
+			PreparedStatement st = conn.prepareStatement(sql);
+			ResultSet res = st.executeQuery();
+			
+			while (res.next()) {
+				result.add(res.getString("city"));
+			}
+			
+			res.close();
+			st.close();
+			conn.close();
+			return result;
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+public List<Business> getLocaliCitta( String citta ){
+		
+		String sql = "select distinct b.* "
+				+ "from Business b "
+				+ "where b.`city`= ?  "
+				+ "order by b.`business_name` asc ";
+		
+		List<Business> result = new ArrayList<Business>();
+		Connection conn = DBConnect.getConnection();
+
+		try {
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setString(1, citta);
+			ResultSet res = st.executeQuery();
+			
+			while (res.next()) {
+				
+				Business bb = new Business(res.getString("business_id"), 
+						res.getString("full_address"),
+						res.getString("active"),
+						res.getString("categories"),
+						res.getString("city"),
+						res.getInt("review_count"),
+						res.getString("business_name"),
+						res.getString("neighborhoods"),
+						res.getDouble("latitude"),
+						res.getDouble("longitude"),
+						res.getString("state"),
+						res.getDouble("stars"));
+				
+				result.add(bb);
+			}
+			
+			res.close();
+			st.close();
+			conn.close();
+			return result;
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
 	
 	
 	
